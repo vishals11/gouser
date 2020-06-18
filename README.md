@@ -44,6 +44,12 @@ export JWT_SIGNING_KEY=<key>
 - Update User `PUT http://localhost:8000/user`
 
 Header: `Authorization` : `<token>`
+
+Token is valid for only 24 Hours
+
+After new login old token will be invalidated
+
+Only non empty fields will be updated in the database
 ```
 {
     "email": "vishal@gmail.com",

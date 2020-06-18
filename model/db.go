@@ -21,6 +21,7 @@ func init() {
 		log.Fatalf("Failed connecting to database: %s", err)
 	}
 
+	db.AutoMigrate(User{})
 	log.Println("Connecting to database: successful")
 	db.LogMode(true)
 }

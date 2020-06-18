@@ -18,13 +18,50 @@ type User struct {
 	Token string `json:"token" gorm:"not null"`
 }
 
-func CreateUser(user *User) (*User, error) {
+func CreateUser(user *User) error {
 	hashedPwd, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 8)
 	user.Password = string(hashedPwd)
 
 	_, err := GetUserFromEmail(user.Email)
 	if err == nil {
 		err = fmt.Errorf("User already exists")
+		return err
+	}
+
+	err = GenerateToken(user)
+	if err != nil {
+		log.Println("Error Generating Token:", err)
+		return err
+	}
+
+	err = db.Create(&user).Error
+	if err != nil {
+		log.Println("Error Creating user:", err)
+		return err
+	}
+
+	// Dont return the hashed password to frontend
+	user.Password = ""
+
+	return nil
+}
+
+// Login structure
+type Login struct {
+	Email    string `json:"email" validate:"email,required"`
+	Password string `json:"password" validate:"required"`
+}
+
+func LoginUser(login Login) (*User, error) {
+	user, err := GetUserFromEmail(login.Email)
+	if err != nil {
+		log.Println("User not found")
+		return nil, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(login.Password))
+	if err != nil {
+		err = fmt.Errorf("Password does not match")
 		return nil, err
 	}
 
@@ -34,9 +71,9 @@ func CreateUser(user *User) (*User, error) {
 		return nil, err
 	}
 
-	err = db.Create(&user).Error
+	err = db.Save(&user).Error
 	if err != nil {
-		log.Println("Error Creating user:", err)
+		log.Println("Error Updating user:", err)
 		return nil, err
 	}
 

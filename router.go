@@ -13,6 +13,7 @@ func InitRoutes() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", Hello).Methods("GET")
 	r.HandleFunc("/user/signup", controller.SignUp).Methods("POST")
+	r.HandleFunc("/user/login", controller.LoginUser).Methods("PUT")
 	return r
 }
 

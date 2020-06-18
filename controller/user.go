@@ -29,16 +29,43 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	err = validate.Struct(user)
 	if err != nil {
-		err = fmt.Errorf("Validation failed:%s\n", err)
+		err = fmt.Errorf("Validation failed:%s", err)
 		WriteError(w, err)
 		return
 	}
 
-	resp, err := model.CreateUser(&user)
+	err = model.CreateUser(&user)
 	if err != nil {
 		err = fmt.Errorf("Error while creating new user: %s", err)
 		WriteError(w, err)
 		return
 	}
-	json.NewEncoder(w).Encode(resp)
+	json.NewEncoder(w).Encode(user)
+}
+
+func LoginUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+
+	var login model.Login
+	err := json.NewDecoder(r.Body).Decode(&login)
+	if err != nil {
+		err = fmt.Errorf("Error Decoding Input:%s", err)
+		WriteError(w, err)
+		return
+	}
+
+	err = validate.Struct(login)
+	if err != nil {
+		err = fmt.Errorf("validation failed:%v", err)
+		WriteError(w, err)
+		return
+	}
+
+	user, err := model.LoginUser(login)
+	if err != nil {
+		err = fmt.Errorf("Error during Login: %s", err)
+		WriteError(w, err)
+		return
+	}
+	json.NewEncoder(w).Encode(user)
 }

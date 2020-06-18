@@ -14,6 +14,7 @@ type User struct {
 	Name     string `json:"name" validate:"required" gorm:"not null"`
 	Email    string `json:"email" validate:"email,required" gorm:"unique;not null"`
 	Password string `json:"password,omitempty" validate:"required" gorm:"not null"`
+	PhoneNo  string `json:"phone_no"`
 
 	Token string `json:"token" gorm:"not null"`
 }

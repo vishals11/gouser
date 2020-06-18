@@ -12,6 +12,7 @@ import (
 func main() {
 	cfg := config.Get()
 
+	r := InitRoutes()
 	fmt.Printf("Server listening on port: %s\n", cfg.Port)
 	log.Fatal(http.ListenAndServe(cfg.Port, r))
 }

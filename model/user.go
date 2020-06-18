@@ -14,6 +14,8 @@ type User struct {
 	Name     string `json:"name" validate:"required" gorm:"not null"`
 	Email    string `json:"email" validate:"email,required" gorm:"unique;not null"`
 	Password string `json:"password,omitempty" validate:"required" gorm:"not null"`
+
+	Token string `json:"token" gorm:"not null"`
 }
 
 func CreateUser(user *User) (*User, error) {
@@ -23,6 +25,12 @@ func CreateUser(user *User) (*User, error) {
 	_, err := GetUserFromEmail(user.Email)
 	if err == nil {
 		err = fmt.Errorf("User already exists")
+		return nil, err
+	}
+
+	err = GenerateToken(user)
+	if err != nil {
+		log.Println("Error Generating Token:", err)
 		return nil, err
 	}
 

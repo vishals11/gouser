@@ -16,6 +16,8 @@ type Config struct {
 	DBPassword string `validate:"required"`
 	DBPort     string `validate:"required"`
 	DBName     string `validate:"required"`
+
+	JwtSigningKey string `validate:"required"`
 }
 
 var config Config
@@ -27,6 +29,7 @@ func init() {
 	config.DBPassword = os.Getenv("DB_PASSWORD")
 	config.DBPort = os.Getenv("DB_PORT")
 	config.DBName = os.Getenv("DB_NAME")
+	config.JwtSigningKey = os.Getenv("JWT_SIGNING_KEY")
 
 	validate := validator.New()
 	err := validate.Struct(config)

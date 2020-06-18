@@ -94,3 +94,14 @@ func GetUserFromEmail(email string) (*User, error) {
 
 	return &user, nil
 }
+
+func GetUserFromID(id int) (*User, error) {
+	var user User
+	err := db.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		log.Printf("Error searching user in database: %v", err)
+		return nil, err
+	}
+
+	return &user, nil
+}

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/vishals11/gouser/model"
+	"golang.org/x/net/context"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -68,4 +69,45 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(user)
+}
+
+func UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", "application/json")
+
+	var update model.Update
+	err := json.NewDecoder(r.Body).Decode(&update)
+	if err != nil {
+		err = fmt.Errorf("Error Decoding Input:%s", err)
+		WriteError(w, err)
+		return
+	}
+
+	userID := r.Context().Value("user_id").(int)
+	user, err := model.UpdateUser(update, userID)
+	if err != nil {
+		err = fmt.Errorf("Error while updating user: %s", err)
+		WriteError(w, err)
+		return
+	}
+	json.NewEncoder(w).Encode(user)
+}
+
+// UserAuthorization validates the token sent in Header
+func UserAuthorization(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Authorization")
+		if token == "" {
+			WriteError(w, fmt.Errorf("Header Authorization is not set"))
+			return
+		}
+
+		user, err := model.ValidateToken(token)
+		if err != nil {
+			WriteError(w, fmt.Errorf("Invalid Token: %v", err))
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "user_id", user.ID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

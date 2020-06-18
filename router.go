@@ -12,8 +12,9 @@ import (
 func InitRoutes() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", Hello).Methods("GET")
-	r.HandleFunc("/user/signup", controller.SignUp).Methods("POST")
-	r.HandleFunc("/user/login", controller.LoginUser).Methods("PUT")
+	r.HandleFunc("/user", controller.SignUp).Methods("POST")
+	r.HandleFunc("/user", controller.LoginUser).Methods("PATCH")
+	r.Handle("/user", controller.UserAuthorization(http.HandlerFunc(controller.UpdateProfile))).Methods("PUT")
 	return r
 }
 

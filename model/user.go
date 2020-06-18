@@ -16,7 +16,7 @@ type User struct {
 	Password string `json:"password,omitempty" validate:"required" gorm:"not null"`
 	PhoneNo  string `json:"phone_no"`
 
-	Token string `json:"token" gorm:"not null"`
+	Token string `json:"token,omitempty" gorm:"not null"`
 }
 
 func CreateUser(user *User) error {
@@ -80,6 +80,41 @@ func LoginUser(login Login) (*User, error) {
 
 	// Dont return the hashed password to frontend
 	user.Password = ""
+
+	return user, nil
+}
+
+// UpdateUser structure
+type Update struct {
+	Name    string `json:"name"`
+	PhoneNo string `json:"phone_no"`
+}
+
+func UpdateUser(update Update, userID int) (*User, error) {
+	user, err := GetUserFromID(userID)
+	if err != nil {
+		log.Println("User not found")
+		return nil, err
+	}
+
+	if update.Name != "" {
+		user.Name = update.Name
+	}
+	if update.PhoneNo != "" {
+		user.PhoneNo = update.PhoneNo
+	}
+
+	err = db.Save(&user).Error
+	if err != nil {
+		log.Println("Error Updating user:", err)
+		return nil, err
+	}
+
+	// Dont return the hashed password to frontend
+	user.Password = ""
+
+	// Don't return token in UpdateUser API
+	user.Token = ""
 
 	return user, nil
 }

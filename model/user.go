@@ -86,8 +86,9 @@ func LoginUser(login Login) (*User, error) {
 
 // UpdateUser structure
 type Update struct {
-	Name    string `json:"name"`
-	PhoneNo string `json:"phone_no"`
+	Name     string `json:"name"`
+	PhoneNo  string `json:"phone_no"`
+	Password string `json:"password"`
 }
 
 func UpdateUser(update Update, userID int) (*User, error) {
@@ -102,6 +103,10 @@ func UpdateUser(update Update, userID int) (*User, error) {
 	}
 	if update.PhoneNo != "" {
 		user.PhoneNo = update.PhoneNo
+	}
+	if update.Password != "" {
+		hashedPwd, _ := bcrypt.GenerateFromPassword([]byte(update.Password), 8)
+		user.Password = string(hashedPwd)
 	}
 
 	err = db.Save(&user).Error

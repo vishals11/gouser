@@ -47,6 +47,7 @@ Header: `Authorization` : `<token>`
 ```
 {
     "email": "vishal@gmail.com",
+    "password": "ABCD12345",
     "phone_no": "123456"
 }
 ```
